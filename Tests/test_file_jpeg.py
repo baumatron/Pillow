@@ -171,6 +171,55 @@ class TestFileJpeg(PillowTestCase):
         # Should not raise a TypeError
         im._getexif()
 
+    def test_exif_gps(self):
+        # Arrange
+        im = Image.open('Tests/images/exif_gps.jpg')
+        gps_index = 34853
+        expected_exif_gps = {
+            0: b'\x00\x00\x00\x01',
+            2: (4294967295, 1),
+            5: b'\x01',
+            30: 65535,
+            29: '1999:99:99 99:99:99'}
+
+        # Act
+        exif = im._getexif()
+
+        # Assert
+        self.assertEqual(exif[gps_index], expected_exif_gps)
+
+    def test_exif_rollback(self):
+        # rolling back exif support in 3.1 to pre-3.0 formatting.
+        # expected from 2.9, with b/u qualifiers switched for 3.2 compatibility
+        # this test passes on 2.9 and 3.1, but not 3.0 
+        expected_exif = {34867: 4294967295,
+                         258: (24, 24, 24), 
+                         36867: '2099:09:29 10:10:10', 
+                         34853: {0: b'\x00\x00\x00\x01', 
+                                 2: (4294967295, 1), 
+                                 5: b'\x01', 
+                                 30: 65535, 
+                                 29: '1999:99:99 99:99:99'}, 
+                         296: 65535, 
+                         34665: 185, 
+                         41994: 65535, 
+                         514: 4294967295, 
+                         271: 'Make',
+                         272: 'XXX-XXX', 
+                         305: 'PIL', 
+                         42034: ((1, 1), (1, 1), (1, 1), (1, 1)), 
+                         42035: 'LensMake', 
+                         34856: b'\xaa\xaa\xaa\xaa\xaa\xaa', 
+                         282: (4294967295, 1), 
+                         33434: (4294967295, 1)}
+
+        im = Image.open('Tests/images/exif_gps.jpg')
+        exif = im._getexif()
+
+        for tag, value in expected_exif.items():
+            self.assertEqual(value, exif[tag])
+            
+
     def test_exif_gps_typeerror(self):
         im = Image.open('Tests/images/exif_gps_typeerror.jpg')
 
@@ -303,8 +352,8 @@ class TestFileJpeg(PillowTestCase):
         # dict of qtable lists
         self.assert_image_similar(im,
                                   self.roundtrip(im, qtables={
-                                    0: standard_l_qtable,
-                                    1: standard_chrominance_qtable
+                                      0: standard_l_qtable,
+                                      1: standard_chrominance_qtable
                                   }), 30)
 
         # not a sequence

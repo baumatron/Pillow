@@ -4,7 +4,7 @@ Image file formats
 ==================
 
 The Python Imaging Library supports a wide variety of raster file formats.
-Nearly 30 different file formats can be identified and read by the library.
+Over 30 different file formats can be identified and read by the library.
 Write support is less extensive, but most common interchange and presentation
 formats are supported.
 
@@ -119,6 +119,25 @@ attributes before loading the file::
         tag, (x0, y0, x1, y1), offset, extra = im.tile[0]
         im.size = (x1 - x0, y1 - y0)
         im.tile = [(tag, (0, 0) + im.size, offset, extra)]
+
+ICNS
+^^^^
+
+PIL reads and (OS X only) writes Mac OS X ``.icns`` files.  By default, the
+largest available icon is read, though you can override this by setting the
+:py:attr:`~PIL.Image.Image.size` property before calling
+:py:meth:`~PIL.Image.Image.load`.  The :py:meth:`~PIL.Image.Image.open` method
+sets the following :py:attr:`~PIL.Image.Image.info` property:
+
+**sizes**
+    A list of supported sizes found in this icon file; these are a
+    3-tuple, ``(width, height, scale)``, where ``scale`` is 2 for a retina
+    icon and 1 for a standard icon.  You *are* permitted to use this 3-tuple
+    format for the :py:attr:`~PIL.Image.Image.size` property if you set it
+    before calling :py:meth:`~PIL.Image.Image.load`; after loading, the size
+    will be reset to a 2-tuple containing pixel dimensions (so, e.g. if you
+    ask for ``(512, 512, 2)``, the final value of
+    :py:attr:`~PIL.Image.Image.size` will be ``(1024, 1024)``).
 
 IM
 ^^
@@ -471,16 +490,18 @@ The :py:meth:`~PIL.Image.Image.open` method sets the following
     .. versionadded:: 1.1.5
 
 **resolution**
-    Image resolution as an ``(xres, yres)`` tuple, where applicable. This is a 
+    Image resolution as an ``(xres, yres)`` tuple, where applicable. This is a
     measurement in whichever unit is specified by the file.
 
     .. versionadded:: 1.1.5
 
 
-The :py:attr:`~PIL.Image.Image.tag_v2` attribute contains a dictionary of 
-TIFF metadata. The keys are numerical indexes from `~PIL.TiffTags.TAGS_V2`.
-Values are strings or numbers for single items, multiple values are returned
-in a tuple of values. Rational numbers are returned as a single value.
+The :py:attr:`~PIL.Image.Image.tag_v2` attribute contains a dictionary
+of TIFF metadata. The keys are numerical indexes from
+:py:attr:`~PIL.TiffTags.TAGS_V2`.  Values are strings or numbers for single
+items, multiple values are returned in a tuple of values. Rational
+numbers are returned as a :py:class:`~PIL.TiffImagePlugin.IFDRational`
+object.
 
     .. versionadded:: 3.0.0
 
@@ -510,20 +531,33 @@ The :py:meth:`~PIL.Image.Image.save` method can take the following keyword argum
 
     .. versionadded:: 2.3.0
 
-    For compatibility with legacy code, a
-    `~PIL.TiffImagePlugin.ImageFileDirectory_v1` object may be passed
-    in this field. However, this is deprecated.
+    Metadata values that are of the rational type should be passed in
+    using a :py:class:`~PIL.TiffImagePlugin.IFDRational` object.
 
-    ..versionadded:: 3.0.0
+    .. versionadded:: 3.1.0
+
+    For compatibility with legacy code, a
+    :py:class:`~PIL.TiffImagePlugin.ImageFileDirectory_v1` object may
+    be passed in this field. However, this is deprecated.
+
+    .. versionadded:: 3.0.0
+
+ .. note::
+
+    Only some tags are currently supported when writing using
+    libtiff. The supported list is found in
+    :py:attr:`~PIL:TiffTags.LIBTIFF_CORE`.
 
 **compression**
     A string containing the desired compression method for the
-	file. (valid only with libtiff installed) Valid compression
-	methods are: ``[None, "tiff_ccitt", "group3", "group4",
-	"tiff_jpeg", "tiff_adobe_deflate", "tiff_thunderscan",
-	"tiff_deflate", "tiff_sgilog", "tiff_sgilog24", "tiff_raw_16"]``
+    file. (valid only with libtiff installed) Valid compression
+    methods are: ``None``, ``"tiff_ccitt"``, ``"group3"``,
+    ``"group4"``, ``"tiff_jpeg"``, ``"tiff_adobe_deflate"``,
+    ``"tiff_thunderscan"``, ``"tiff_deflate"``, ``"tiff_sgilog"``,
+    ``"tiff_sgilog24"``, ``"tiff_raw_16"``
 
-These arguments to set the tiff header fields are an alternative to using the general tags available through tiffinfo.
+These arguments to set the tiff header fields are an alternative to
+using the general tags available through tiffinfo.
 
 **description**
 
@@ -546,9 +580,10 @@ These arguments to set the tiff header fields are an alternative to using the ge
 **y_resolution**
 
 **dpi**
-    Either a Float, Integer, or 2 tuple of (numerator,
-    denominator). Resolution implies an equal x and y resolution, dpi
-    also implies a unit of inches.
+    Either a Float, 2 tuple of (numerator, denominator) or a
+    :py:class:`~PIL.TiffImagePlugin.IFDRational`. Resolution implies
+    an equal x and y resolution, dpi also implies a unit of inches.
+
 
 WebP
 ^^^^
@@ -579,11 +614,6 @@ XBM
 
 PIL reads and writes X bitmap files (mode ``1``).
 
-XV Thumbnails
-^^^^^^^^^^^^^
-
-PIL can read XV thumbnail files.
-
 Read-only formats
 -----------------
 
@@ -602,6 +632,16 @@ is commonly used in fax applications. The DCX decoder can read files containing
 
 When the file is opened, only the first image is read. You can use
 :py:meth:`~file.seek` or :py:mod:`~PIL.ImageSequence` to read other images.
+
+
+DDS
+^^^
+
+DDS is a popular container texture format used in video games and natively
+supported by DirectX.
+Currently, only DXT1 and DXT5 pixel formats are supported and only in ``RGBA``
+mode.
+
 
 FLI, FLC
 ^^^^^^^^
@@ -665,25 +705,6 @@ The :py:meth:`~PIL.Image.Image.save` method supports the following options:
     (64, 64), (128, 128), (255, 255)]``. Any size is bigger then the original
     size or 255 will be ignored.
 
-ICNS
-^^^^
-
-PIL reads Mac OS X ``.icns`` files.  By default, the largest available icon is
-read, though you can override this by setting the :py:attr:`~PIL.Image.Image.size`
-property before calling :py:meth:`~PIL.Image.Image.load`.  The
-:py:meth:`~PIL.Image.Image.open` method sets the following
-:py:attr:`~PIL.Image.Image.info` property:
-
-**sizes**
-    A list of supported sizes found in this icon file; these are a
-    3-tuple, ``(width, height, scale)``, where ``scale`` is 2 for a retina
-    icon and 1 for a standard icon.  You *are* permitted to use this 3-tuple
-    format for the :py:attr:`~PIL.Image.Image.size` property if you set it
-    before calling :py:meth:`~PIL.Image.Image.load`; after loading, the size
-    will be reset to a 2-tuple containing pixel dimensions (so, e.g. if you
-    ask for ``(512, 512, 2)``, the final value of
-    :py:attr:`~PIL.Image.Image.size` will be ``(1024, 1024)``).
-
 IMT
 ^^^
 
@@ -699,7 +720,8 @@ MCIDAS
 
 PIL identifies and reads 8-bit McIdas area files.
 
-MIC (read only)
+MIC
+^^^
 
 PIL identifies and reads Microsoft Image Composer (MIC) files. When opened, the
 first sprite in the file is loaded. You can use :py:meth:`~file.seek` and
@@ -713,12 +735,6 @@ image when first opened. The :py:meth:`~file.seek` and :py:meth:`~file.tell`
 methods may be used to read other pictures from the file. The pictures are
 zero-indexed and random access is supported.
 
-MIC (read only)
-
-Pillow identifies and reads Microsoft Image Composer (MIC) files. When opened, the
-first sprite in the file is loaded. You can use :py:meth:`~file.seek` and
-:py:meth:`~file.tell` to read other sprites from the file.
-
 PCD
 ^^^
 
@@ -727,6 +743,14 @@ resolution is read. You can use the :py:meth:`~PIL.Image.Image.draft` method to
 read the lower resolution versions instead, thus effectively resizing the image
 to 384x256 or 192x128. Higher resolutions cannot be read by the Python Imaging
 Library.
+
+PIXAR
+^^^^^
+
+PIL provides limited support for PIXAR raster files. The library can identify
+and read “dumped” RGB files.
+
+The format code is ``PIXAR``.
 
 PSD
 ^^^
@@ -791,13 +815,10 @@ by default, only the first image will be saved. To save all frames, each frame
 to a separate page of the PDF, the ``save_all`` parameter must be present and
 set to ``True``.
 
-PIXAR (read only)
-^^^^^^^^^^^^^^^^^
+XV Thumbnails
+^^^^^^^^^^^^^
 
-PIL provides limited support for PIXAR raster files. The library can identify
-and read “dumped” RGB files.
-
-The format code is ``PIXAR``.
+PIL can read XV thumbnail files.
 
 Identify-only formats
 ---------------------

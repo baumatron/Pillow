@@ -1,8 +1,134 @@
 Changelog (Pillow)
 ==================
 
-3.1.0 (unreleased)
+3.2.0 (unreleased)
 ------------------
+
+- Add a basic DDS image plugin with more tests #1654
+  [jleclanche, hugovk, wiredfool]
+
+- Fix incorrect conditional in encode.c #1638
+  [manisandro]
+
+3.1.0 (2016-01-04)
+------------------
+
+- Fixing test failures on Python 2.6/Windows #1633
+  [wiredfool]
+
+- Limit metadata tags when writing using libtiff #1620
+  [wiredfool]
+
+- Rolling back exif support to pre-3.0 format #1627
+  [wiredfool]
+
+- Fix Divide by zero in Exif, add IFDRational class #1531
+  [wiredfool]
+
+- Catch the IFD error near the source #1622
+  [wiredfool]
+
+- Added release notes for 3.1.0 #1623
+  [radarhere]
+
+- Updated spacing to be consistent between multiline methods #1624
+  [radarhere]
+
+- Let EditorConfig take care of some basic formatting #1489
+  [hugovk]
+
+- Restore gpsexif data to the v1 form
+  [wiredfool]
+
+- Add /usr/local include and library directories for freebsd #1613
+  [leforestier]
+
+- Updated installation docs for new versions of dependencies #1611
+  [radarhere]
+  
+- Removed unrunnable test file #1610
+  [radarhere]
+
+- Changed register calls to use format property #1608
+  [radarhere]
+
+- Added field type constants to TiffTags #1596
+  [radarhere]
+  
+- Allow saving RowsPerStrip with libtiff #1594
+  [wiredfool]
+
+- Enabled conversion to numpy array for HSV images #1578
+  [cartisan]
+
+- Changed some urls in the docs to use https #1580
+  [hugovk]
+ 
+- Removed logger.exception from ImageFile.py #1590
+  [radarhere]
+  
+- Removed warnings module check #1587
+  [radarhere]
+
+- Changed arcs, chords and pie slices to use floats #1577
+  [radarhere]
+
+- Update unit test asserts #1584, #1598
+  [radarhere]
+
+- Fix command to invoke ghostscript for eps files #1478
+  [baumatron, radarhere]
+
+- Consistent multiline text spacing #1574
+  [wiredfool, hugovk]
+  
+- Removed unused lines in BDFFontFile #1530
+  [radarhere]
+
+- Changed ImageQt import of Image #1560
+  [radarhere, ericfrederich]
+
+- Throw TypeError if no cursors were found in .cur file #1556
+  [radarhere]
+
+- Fix crash in ImageTk.PhotoImage on win-amd64 #1553
+  [cgohlke]
+
+- ExtraSamples tag should be a SHORT, not a BYTE #1555
+  [Nexuapex]
+
+- Docs and code health fixes #1565 #1566 #1581 #1586 #1591 #1621
+  [radarhere]
+  
+- Updated freetype to 2.6.2 #1564
+  [radarhere]
+
+- Updated WebP to 0.5.0 for Travis #1515 #1609
+  [radarhere]
+  
+- Fix missing 'version' key value in __array_interface__ #1519
+  [mattip]
+  
+- Replaced os.popen with subprocess.Popen to pilprint script #1523
+  [radarhere]
+  
+- Catch OverflowError in SpiderImagePlugin #1545
+  [radarhere, MrShark]
+
+- Fix the definition of icc_profile in TiffTags #1539
+  [wiredfool]
+
+- Remove old _imagingtiff.c and pilplus stuff #1499
+  [hugovk]
+
+- Fix Exception when requiring jpeg #1501
+  [hansmosh]
+  
+- Dependency scripts for Debian and Ubuntu #1486
+  [wiredfool]
+
+- Added Usage message to painter script #1482
+  [radarhere]
 
 - Add tag info for iccprofile, fixes #1462. #1465
   [wiredfool]
@@ -319,7 +445,7 @@ Changelog (Pillow)
 - Adjust buffer size when quality=keep, fixes #148 (again)
   [wiredfool]
 
-- Fix for corrupted bitmaps embedded in truetype fonts. #1072 
+- Fix for corrupted bitmaps embedded in truetype fonts. #1072
   [jackyyf, wiredfool]
 
 2.7.0 (2015-01-01)
@@ -328,7 +454,7 @@ Changelog (Pillow)
 - Split Sane into a separate repo: https://github.com/python-pillow/Sane
   [hugovk]
 
-- Look for OSX and Linux fonts in common places. #1054
+- Look for OS X and Linux fonts in common places. #1054
   [charleslaw]
 
 - Fix CVE-2014-9601, potential PNG decompression DOS #1060
@@ -406,7 +532,7 @@ Changelog (Pillow)
 2.6.2 (2015-01-01)
 ------------------
 
-- Fix CVE-2014-9601, potential PNG decompression DOS #1060 
+- Fix CVE-2014-9601, potential PNG decompression DOS #1060
   [wiredfool]
 
 - Fix Regression in PyPy 2.4 in streamio  #958
@@ -936,7 +1062,7 @@ Changelog (Pillow)
 - Fix #328: _imagingcms.c: include windef.h to fix build issue on MSVC
   [nu774]
 
-- Automatically discover homebrew include/ and lib/ paths on OSX
+- Automatically discover homebrew include/ and lib/ paths on OS X
   [donspaulding]
 
 - Fix bytes which should be bytearray
@@ -1075,7 +1201,7 @@ Changelog (Pillow)
 
 .. Note:: Special thanks to Christoph Gohlke and Eric Soroos for assisting with a pre-PyCon 2013 release!
 
-- Many other bug fixes and enhancements by many other people. 
+- Many other bug fixes and enhancements by many other people.
 
 - Add Python 3 support. (Pillow >= 2.0.0 supports Python 2.6, 2.7, 3.2, 3.3. Pillow < 2.0.0 supports Python 2.4, 2.5, 2.6, 2.7.)
   [fluggo]
@@ -1091,7 +1217,7 @@ Changelog (Pillow)
 - Backport PIL's PNG/Zip improvements.
   [olt]
 
-- Various 64 bit and Windows fixes.
+- Various 64-bit and Windows fixes.
   [cgohlke]
 
 - Add testing suite.
@@ -1263,7 +1389,7 @@ Pre-fork
     This section may not be fully complete.  For changes since this file
     was last updated, see the repository revision history:
 
-      http://bitbucket.org/effbot/pil-2009-raclette/changesets/
+      https://bitbucket.org/effbot/pil-2009-raclette/commits/all
 
     (1.1.7 final)
 

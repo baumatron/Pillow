@@ -71,7 +71,7 @@
  * See the README file for information on usage and redistribution.
  */
 
-#define PILLOW_VERSION "3.1.0.dev0"
+#define PILLOW_VERSION "3.2.0.dev0"
 
 #include "Python.h"
 
@@ -97,9 +97,6 @@
 #define WITH_UNSHARPMASK /* Kevin Cazabon's unsharpmask module */
 
 #define WITH_DEBUG /* extra debugging interfaces */
-
-/* PIL Plus extensions */
-#undef  WITH_CRACKCODE /* pil plus */
 
 #undef    VERBOSE
 
@@ -370,7 +367,7 @@ getlist(PyObject* arg, int* length, const char* wrong_length, int type)
     void* list;
     PyObject* seq;
     PyObject* op;
-    
+
     if (!PySequence_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, must_be_sequence);
         return NULL;
@@ -392,11 +389,11 @@ getlist(PyObject* arg, int* length, const char* wrong_length, int type)
         PyErr_SetString(PyExc_TypeError, must_be_sequence);
         return NULL;
     }
-    
+
     for (i = 0; i < n; i++) {
         op = PySequence_Fast_GET_ITEM(seq, i);
-        // DRY, branch prediction is going to work _really_ well 
-        // on this switch. And 3 fewer loops to copy/paste. 
+        // DRY, branch prediction is going to work _really_ well
+        // on this switch. And 3 fewer loops to copy/paste.
         switch (type) {
         case TYPE_UINT8:
             itemp = PyInt_AsLong(op);
@@ -2385,9 +2382,9 @@ _draw_arc(ImagingDrawObject* self, PyObject* args)
 
     PyObject* data;
     int ink;
-    int start, end;
+    float start, end;
     int op = 0;
-    if (!PyArg_ParseTuple(args, "Oiii|i", &data, &start, &end, &ink))
+    if (!PyArg_ParseTuple(args, "Offi|i", &data, &start, &end, &ink))
         return NULL;
 
     n = PyPath_Flatten(data, &xy);
@@ -2459,8 +2456,8 @@ _draw_chord(ImagingDrawObject* self, PyObject* args)
 
     PyObject* data;
     int ink, fill;
-    int start, end;
-    if (!PyArg_ParseTuple(args, "Oiiii",
+    float start, end;
+    if (!PyArg_ParseTuple(args, "Offii",
                           &data, &start, &end, &ink, &fill))
         return NULL;
 
@@ -2680,8 +2677,8 @@ _draw_pieslice(ImagingDrawObject* self, PyObject* args)
 
     PyObject* data;
     int ink, fill;
-    int start, end;
-    if (!PyArg_ParseTuple(args, "Oiiii", &data, &start, &end, &ink, &fill))
+    float start, end;
+    if (!PyArg_ParseTuple(args, "Offii", &data, &start, &end, &ink, &fill))
         return NULL;
 
     n = PyPath_Flatten(data, &xy);
@@ -3030,9 +3027,6 @@ static struct PyMethodDef methods[] = {
     {"convert_transparent", (PyCFunction)_convert_transparent, 1},
     {"copy", (PyCFunction)_copy, 1},
     {"copy2", (PyCFunction)_copy2, 1},
-#ifdef WITH_CRACKCODE
-    {"crackcode", (PyCFunction)_crackcode, 1},
-#endif
     {"crop", (PyCFunction)_crop, 1},
     {"expand", (PyCFunction)_expand_image, 1},
     {"filter", (PyCFunction)_filter, 1},
@@ -3101,7 +3095,7 @@ static struct PyMethodDef methods[] = {
     {"unsharp_mask", (PyCFunction)_unsharp_mask, 1},
 #endif
 
-    {"box_blur", (PyCFunction)_box_blur, 1},    
+    {"box_blur", (PyCFunction)_box_blur, 1},
 
 #ifdef WITH_EFFECTS
     /* Special effects */

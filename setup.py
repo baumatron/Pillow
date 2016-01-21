@@ -90,7 +90,7 @@ except (ImportError, OSError):
 
 
 NAME = 'Pillow'
-PILLOW_VERSION = '3.1.0.dev0'
+PILLOW_VERSION = '3.2.0.dev0'
 TCL_ROOT = None
 JPEG_ROOT = None
 JPEG2K_ROOT = None
@@ -243,7 +243,7 @@ class pil_build_ext(build_ext):
         elif sys.platform.startswith("linux"):
             arch_tp = (plat.processor(), plat.architecture()[0])
             if arch_tp == ("x86_64", "32bit"):
-                # 32 bit build on 64 bit machine.
+                # 32-bit build on 64-bit machine.
                 _add_directory(library_dirs, "/usr/lib/i386-linux-gnu")
             else:
                 for platform_ in arch_tp:
@@ -301,6 +301,10 @@ class pil_build_ext(build_ext):
 
         elif sys.platform.startswith("gnu"):
             self.add_multiarch_paths()
+
+        elif sys.platform.startswith("freebsd"):
+            _add_directory(library_dirs, "/usr/local/lib")
+            _add_directory(include_dirs, "/usr/local/include")
 
         elif sys.platform.startswith("netbsd"):
             _add_directory(library_dirs, "/usr/pkg/lib")
@@ -506,9 +510,9 @@ class pil_build_ext(build_ext):
 
         for f in feature:
             if not getattr(feature, f) and feature.require(f):
-                if feature in ('jpeg', 'libz'):
+                if f in ('jpeg', 'libz'):
                     raise ValueError('%s is required unless explicitly disabled'
-                                     + ' using --disable-%s, aborting' %
+                                     ' using --disable-%s, aborting' %
                                      (f, f))
                 raise ValueError(
                     '--enable-%s requested but %s not found, aborting.'
@@ -553,10 +557,6 @@ class pil_build_ext(build_ext):
         if feature.freetype:
             exts.append(Extension(
                 "PIL._imagingft", ["_imagingft.c"], libraries=["freetype"]))
-
-        if os.path.isfile("_imagingtiff.c") and feature.tiff:
-            exts.append(Extension(
-                "PIL._imagingtiff", ["_imagingtiff.c"], libraries=["tiff"]))
 
         if os.path.isfile("_imagingcms.c") and feature.lcms:
             extra = []
@@ -753,6 +753,7 @@ setup(
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         ],

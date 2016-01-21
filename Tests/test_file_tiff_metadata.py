@@ -6,6 +6,7 @@ import struct
 from helper import unittest, PillowTestCase, hopper
 
 from PIL import Image, TiffImagePlugin, TiffTags
+from PIL.TiffImagePlugin import _limit_rational, IFDRational
 
 tag_ids = dict((info.name, info.value) for info in TiffTags.TAGS_V2.values())
 
@@ -28,7 +29,7 @@ class TestFileTiffMetadata(PillowTestCase):
         #
         # For text items, we still have to decode('ascii','replace') because
         # the tiff file format can't take 8 bit bytes in that field.
-        
+
         basetextdata = "This is some arbitrary metadata for a text field"
         bindata = basetextdata.encode('ascii') + b" \xff"
         textdata = basetextdata + " " + chr(255)
@@ -40,7 +41,7 @@ class TestFileTiffMetadata(PillowTestCase):
         ImageJMetaData = tag_ids['ImageJMetaData']
         ImageJMetaDataByteCounts = tag_ids['ImageJMetaDataByteCounts']
         ImageDescription = tag_ids['ImageDescription']
-        
+
         info[ImageJMetaDataByteCounts] = len(bindata)
         info[ImageJMetaData] = bindata
         info[tag_ids['RollAngle']] = floatdata
@@ -49,7 +50,7 @@ class TestFileTiffMetadata(PillowTestCase):
         info.tagtype[tag_ids['YawAngle']] = 12
 
         info[ImageDescription] = textdata
-             
+
         f = self.tempfile("temp.tif")
 
         img.save(f, tiffinfo=info)
@@ -70,11 +71,10 @@ class TestFileTiffMetadata(PillowTestCase):
         loaded_double = loaded.tag[tag_ids['YawAngle']][0]
         self.assertAlmostEqual(loaded_double, doubledata)
 
-
     def test_read_metadata(self):
         img = Image.open('Tests/images/hopper_g4.tif')
 
-        self.assertEqual({'YResolution': 4294967295 / 113653537,
+        self.assertEqual({'YResolution': IFDRational(4294967295, 113653537),
                           'PlanarConfiguration': 1,
                           'BitsPerSample': (1,),
                           'ImageLength': 128,
@@ -84,7 +84,7 @@ class TestFileTiffMetadata(PillowTestCase):
                           'ResolutionUnit': 3,
                           'PhotometricInterpretation': 0,
                           'PageNumber': (0, 1),
-                          'XResolution': 4294967295 / 113653537,
+                          'XResolution': IFDRational(4294967295, 113653537),
                           'ImageWidth': 128,
                           'Orientation': 1,
                           'StripByteCounts': (1968,),
@@ -122,13 +122,32 @@ class TestFileTiffMetadata(PillowTestCase):
         original = img.tag_v2.named()
         reloaded = loaded.tag_v2.named()
 
-        ignored = [
-            'StripByteCounts', 'RowsPerStrip', 'PageNumber', 'StripOffsets']
+        for k,v in original.items():
+            if type(v) == IFDRational:
+                original[k] = IFDRational(*_limit_rational(v,2**31))
+            if type(v) == tuple and \
+                type(v[0]) == IFDRational:
+                original[k] = tuple([IFDRational(
+                                      *_limit_rational(elt, 2**31)) for elt in v])
+
+        ignored = ['StripByteCounts', 'RowsPerStrip',
+                   'PageNumber', 'StripOffsets']
 
         for tag, value in reloaded.items():
-            if tag not in ignored:
-                self.assertEqual(
-                    original[tag], value, "%s didn't roundtrip" % tag)
+            if tag in ignored: continue
+            if (type(original[tag]) == tuple
+                and type(original[tag][0]) == IFDRational):
+                # Need to compare element by element in the tuple,
+                # not comparing tuples of object references
+                self.assert_deep_equal(original[tag],
+                                       value,
+                                       "%s didn't roundtrip, %s, %s" %
+                                       (tag, original[tag], value))
+            else:
+                self.assertEqual(original[tag],
+                                 value,
+                                 "%s didn't roundtrip, %s, %s" %
+                                 (tag, original[tag], value))
 
         for tag, value in original.items():
             if tag not in ignored:
@@ -157,6 +176,27 @@ class TestFileTiffMetadata(PillowTestCase):
         reloaded = Image.open(out)
         self.assert_(type(im.info['icc_profile']) is not type(tuple))
         self.assertEqual(im.info['icc_profile'], reloaded.info['icc_profile'])
+
+    def test_iccprofile_binary(self):
+        # https://github.com/python-pillow/Pillow/issues/1526
+        # We should be able to load this, but probably won't be able to save it.
+
+        im = Image.open('Tests/images/hopper.iccprofile_binary.tif')
+        self.assertEqual(im.tag_v2.tagtype[34675], 1)
+        self.assertTrue(im.info['icc_profile'])
+
+    def test_exif_div_zero(self):
+        im = hopper()
+        info = TiffImagePlugin.ImageFileDirectory_v2()
+        info[41988] = TiffImagePlugin.IFDRational(0,0)
+
+        out = self.tempfile('temp.tiff')
+        im.save(out, tiffinfo=info, compression='raw')
+
+        reloaded = Image.open(out)
+        self.assertEqual(0, reloaded.tag_v2[41988][0].numerator)
+        self.assertEqual(0, reloaded.tag_v2[41988][0].denominator)
+
 
 
 

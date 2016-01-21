@@ -28,9 +28,9 @@ libs = {
         'dir': 'tiff-4.0.6',
     },
     'freetype': {
-        'url': 'http://download.savannah.gnu.org/releases/freetype/freetype-2.6.tar.gz',
-        'hash': 'md5:1d733ea6c1b7b3df38169fbdbec47d2b',
-        'dir': 'freetype-2.6',
+        'url': 'http://download.savannah.gnu.org/releases/freetype/freetype-2.6.2.tar.gz',
+        'hash': 'md5:c408547878f1f5a3700881a8bbf1c644',
+        'dir': 'freetype-2.6.2',
     },
     'lcms': {
         'url': SF_MIRROR+'/project/lcms/lcms/2.7/lcms2-2.7.zip',
@@ -60,9 +60,9 @@ libs = {
         'version': '8.6.4',
     },
     'webp': {
-        'url': 'http://downloads.webmproject.org/releases/webp/libwebp-0.4.3.tar.gz',
-        'hash': 'sha1:1c307a61c4d0018620b4ba9a58e8f48a8d6640ef',
-        'dir': 'libwebp-0.4.3',
+        'url': 'http://downloads.webmproject.org/releases/webp/libwebp-0.5.0.tar.gz',
+        'hash': 'sha1:d3de815b272fcf88fc4f2dc1ab65d176bcb8df68',
+        'dir': 'libwebp-0.5.0',
     },
     'openjpeg': {
         'url': SF_MIRROR+'/project/openjpeg/openjpeg/2.1.0/openjpeg-2.1.0.tar.gz',

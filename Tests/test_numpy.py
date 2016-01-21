@@ -22,9 +22,9 @@ class TestNumpy(PillowTestCase):
 
     def test_numpy_to_image(self):
 
-        def to_image(dtype, bands=1, bool=0):
+        def to_image(dtype, bands=1, boolean=0):
             if bands == 1:
-                if bool:
+                if boolean:
                     data = [0, 1] * 50
                 else:
                     data = list(range(100))
@@ -43,8 +43,8 @@ class TestNumpy(PillowTestCase):
             # print dtype, list(i.getdata())
             return i
 
-        # self.assert_image(to_image(numpy.bool, bool=1), "1", (10, 10))
-        # self.assert_image(to_image(numpy.bool8, bool=1), "1", (10, 10))
+        # self.assert_image(to_image(numpy.bool, boolean=1), "1", (10, 10))
+        # self.assert_image(to_image(numpy.bool8, boolean=1), "1", (10, 10))
 
         self.assertRaises(TypeError, lambda: to_image(numpy.uint))
         self.assert_image(to_image(numpy.uint8), "L", (10, 10))
@@ -67,7 +67,7 @@ class TestNumpy(PillowTestCase):
         self.assert_image(to_image(numpy.uint8, 3), "RGB", (10, 10))
         self.assert_image(to_image(numpy.uint8, 4), "RGBA", (10, 10))
 
-    # based on an erring example at http://is.gd/6F0esS  (which resolves to)
+    # based on an erring example at
     # http://stackoverflow.com/questions/10854903/what-is-causing-dimension-dependent-attributeerror-in-pil-fromarray-function
     def test_3d_array(self):
         a = numpy.ones((10, 10, 10), dtype=numpy.uint8)
@@ -113,6 +113,7 @@ class TestNumpy(PillowTestCase):
                  ("I;16", '<u2'),
                  ("I;16B", '>u2'),
                  ("I;16L", '<u2'),
+                 ("HSV", 'uint8'),
                  ]
 
         for mode in modes:

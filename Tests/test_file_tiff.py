@@ -80,13 +80,13 @@ class TestFileTiff(PillowTestCase):
         filename = "Tests/images/pil168.tif"
         im = Image.open(filename)
 
-        #legacy api
-        self.assert_(isinstance(im.tag[X_RESOLUTION][0], tuple))
-        self.assert_(isinstance(im.tag[Y_RESOLUTION][0], tuple))
+        # legacy api
+        self.assertIsInstance(im.tag[X_RESOLUTION][0], tuple)
+        self.assertIsInstance(im.tag[Y_RESOLUTION][0], tuple)
 
         #v2 api
-        self.assert_(isinstance(im.tag_v2[X_RESOLUTION], float))
-        self.assert_(isinstance(im.tag_v2[Y_RESOLUTION], float))
+        self.assert_(isinstance(im.tag_v2[X_RESOLUTION], TiffImagePlugin.IFDRational))
+        self.assert_(isinstance(im.tag_v2[Y_RESOLUTION], TiffImagePlugin.IFDRational))
 
         self.assertEqual(im.info['dpi'], (72., 72.))
 
@@ -110,10 +110,15 @@ class TestFileTiff(PillowTestCase):
     def test_bad_exif(self):
         i = Image.open('Tests/images/hopper_bad_exif.jpg')
         try:
-            self.assert_warning(UserWarning, lambda: i._getexif())
+            self.assert_warning(UserWarning, i._getexif)
         except struct.error:
             self.fail(
-                 "Bad EXIF data passed incorrect values to _binary unpack")
+                "Bad EXIF data passed incorrect values to _binary unpack")
+
+    def test_save_rgba(self):
+        im = hopper("RGBA")
+        outfile = self.tempfile("temp.tif")
+        im.save(outfile)
 
     def test_save_unsupported_mode(self):
         im = hopper("HSV")
@@ -169,7 +174,7 @@ class TestFileTiff(PillowTestCase):
         self.assert_image_equal(im, im2)
 
     def test_32bit_float(self):
-        # Issue 614, specific 32 bit float format
+        # Issue 614, specific 32-bit float format
         path = 'Tests/images/10ct_32bit_128.tiff'
         im = Image.open(path)
         im.load()
@@ -240,18 +245,18 @@ class TestFileTiff(PillowTestCase):
         im = Image.open(filename)
         # v2 interface
         self.assertEqual(
-                im.tag_v2.as_dict(),
-                {256: 55, 257: 43, 258: (8, 8, 8, 8), 259: 1,
-                 262: 2, 296: 2, 273: (8,), 338: (1,), 277: 4,
-                 279: (9460,), 282: 72.0, 283: 72.0, 284: 1})
-        
+            im.tag_v2.as_dict(),
+            {256: 55, 257: 43, 258: (8, 8, 8, 8), 259: 1,
+             262: 2, 296: 2, 273: (8,), 338: (1,), 277: 4,
+             279: (9460,), 282: 72.0, 283: 72.0, 284: 1})
+
         # legacy interface
         self.assertEqual(
-                im.tag.as_dict(),
-                {256: (55,), 257: (43,), 258: (8, 8, 8, 8), 259: (1,),
-                 262: (2,), 296: (2,), 273: (8,), 338: (1,), 277: (4,),
-                 279: (9460,), 282: ((720000, 10000),),
-                 283: ((720000, 10000),), 284: (1,)})            
+            im.tag.as_dict(),
+            {256: (55,), 257: (43,), 258: (8, 8, 8, 8), 259: (1,),
+             262: (2,), 296: (2,), 273: (8,), 338: (1,), 277: (4,),
+             279: (9460,), 282: ((720000, 10000),),
+             283: ((720000, 10000),), 284: (1,)})
 
     def test__delitem__(self):
         filename = "Tests/images/pil136.tiff"
